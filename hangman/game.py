@@ -1,23 +1,59 @@
 from .exceptions import *
+import random
 
 # Complete with your own, just for fun :)
-LIST_OF_WORDS = []
+LIST_OF_WORDS = ['Colombia', 'python', 'fun', 'love', 'awesome']
 
 
 def _get_random_word(list_of_words):
-    pass
+    if list_of_words == []:
+        raise InvalidListOfWordsException
+    return random.choice(list_of_words)
 
 
 def _mask_word(word):
-    pass
+  mask = len(word)
+  if word == '':
+      raise InvalidWordException
+  return "*" * mask
 
 
 def _uncover_word(answer_word, masked_word, character):
-    pass
+    if answer_word == '':
+        raise InvalidWordException
+    if len(character) > 1:
+        raise InvalidGuessedLetterException
+    if len(answer_word) != len(masked_word):
+        raise InvalidWordException
+    character = character.lower() 
+    answer_word = answer_word.lower()
+    masked_word = list(masked_word)
+    for pos, letter in enumerate(answer_word):
+        if letter == character:
+            masked_word[pos] = character
+    return ''.join(masked_word)
+    
 
 
 def guess_letter(game, letter):
-    pass
+    
+    guess = _uncover_word(game["answer_word"], game["masked_word"], letter)
+    
+    if guess == game["masked_word"]:
+        game["remaining_misses"] = game["remaining_misses"] - 1
+   
+    game["masked_word"] = guess
+    game["previous_guesses"].append(letter.lower()) 
+    
+    if guess == game["answer_word"]:
+        raise GameWonException
+     
+    if game["remaining_misses"] == 0:
+        raise GameLostException
+    
+    return game
+    
+    
 
 
 def start_new_game(list_of_words=None, number_of_guesses=5):
